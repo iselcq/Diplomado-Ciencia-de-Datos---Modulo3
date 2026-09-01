@@ -99,6 +99,7 @@ while cont < len(matriz):
 
 print("Asociaciones [X, Y] construidas:")
 verComoMatriz(asociaciones)
+verComoMatriz(asociaciones)
 
 
 # ≽(•⩊ •マ≼ TRAIN AND TEST (división balanceada por clase) ≽(•⩊ •マ≼
