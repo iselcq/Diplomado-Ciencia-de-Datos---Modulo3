@@ -76,12 +76,12 @@ for k in range(matrizCuantitativas.shape[0]):
     maximo = matrizCuantitativas[k].max()
     dev_std = matrizCuantitativas[k].std()
     print(f"Atributo {indice} ---> "
-          f"Promedio= {promedio:.4f},",
-          f"Min= {minimo:.4f},",
-          f"Max= {maximo:.4f},",
-          f"Desviación Estándar= {dev_std:.4f}.")
+          f"Promedio = {promedio:.4f},",
+          f"Min = {minimo:.4f},",
+          f"Max = {maximo:.4f},",
+          f"Desviación Estándar = {dev_std:.4f}.")
 
-#Falta tomas solo 10 atributos si son mas de 10
+#Falta tomar solo 10 atributos si son mas de 10
 
 #2. Definir los atributos del vector de entrada X y de salida (clase)Y (˵ ¬ᴗ¬˵)
 
@@ -145,8 +145,8 @@ vectorY = np.array([a[1][0] for a in asociaciones])
 #3. Pre-procesamiento a la base de datos, describirlo (˵ ¬ᴗ¬˵)
     # linea 27
 
-#4. Obtener las métricas de recuperación (% aciertos) y error del clasificador K-NN
-#   usando el metodo de validacion Train and Test
+#4. Obtener las métricas de recuperación (% aciertos) y error del clasificador K-NN usando el metodo de validacion Train and Test
+
 
 # ≽(•⩊ •マ≼ FUNCIONES AUXILIARES DE K-NN ≽(•⩊ •マ≼
 
@@ -282,9 +282,7 @@ print(f"Error: {error:.2f}%")
 print("✩₊˚.⋆☾⋆⁺₊✧")
 
 
-#5. Obtener las métricas de recuperación (% aciertos) y error del clasificador
-    #Mínima distancia
-
+#5. Obtener las métricas de recuperación (% aciertos) y error del clasificador mínima distancia
 # ≽(•⩊ •マ≼ FUNCIONES DEL CLASIFICADOR DE MÍNIMA DISTANCIA ≽(•⩊ •マ≼
 
 def calcularCentroide(vectores):
@@ -336,7 +334,6 @@ asociacionAprendidaMD, renglonesProbarMD = validarTrainAndTest(
 
 centroides = aprenderMinimaDistancia(asociacionAprendidaMD, vectorClases)
 
-print("✩₊˚.⋆☾⋆⁺₊✧")
 print("CENTROIDES APRENDIDOS POR CLASE")
 for centro in centroides:
     print(f"  {centro[0]}: {[round(x, 4) for x in centro[1]]}")
@@ -367,10 +364,192 @@ print(f"Error: {errorMD:.2f}%")
 print("✩₊˚.⋆☾⋆⁺₊✧")
 
 
-#6. Elegir dos de los atributos utilizando algún criterio
-    ## Eliminar uno de los atributos elegidos y corroborar metodo de validacion
-    ## Eliminar el otro de los atributos elegidos y corroborar metodo de validacion
-    ## Eliminar los dos atributos elgidos y corroborar metodo de validacion
-#7. Reemplaza las muestras y obten porc entajes de recuperacion y error (1-NN,3-NN y 5-NN)
+#6. Elegir dos de los atributos utilizando algún criterio y corroborar con Train & Test (˵ ¬ᴗ¬˵)
+
+print("6. ELIMINACIÓN DE ATRIBUTOS")
+
+# Posiciones de los atributos de entrada
+posXCompleta = [0, 1, 2, 3]
+# Atributos a eliminar
+atributosEliminar = [2, 3]  # LP y AP
+
+# ≽(•⩊ •マ≼ FUNCIÓN PARA RE-CONSTRUIR ASOCIACIONES ≽(•⩊ •マ≼
+def construirAsociacionesConMatriz(matriz, posX):
+    nuevas = []
+    cont = 0
+    while cont < len(matriz):
+        VX = []
+        dim = 0
+        while dim < len(posX):
+            VX.append(float(matriz[cont][posX[dim]]))
+            dim = dim + 1
+        VY = [matriz[cont][4]]  # columna 4 = clase
+        nuevas.append([VX, VY])
+        cont = cont + 1
+    return nuevas
+
+# ≽(•⩊ •マ≼ FUNCIONES GENÉRICAS DE EVALUACIÓN ≽(•⩊ •マ≼
+def evaluarKNNGenerico(asociacionesXT, clases, k):
+    asociacionAprendida, renglonesProbar = validarTrainAndTest(
+        asociacionesXT, clases, porcentajeEntrenamiento)
+    aciertos, total, rec, err = evaluarKNN(
+        asociacionesXT, asociacionAprendida, renglonesProbar, k)
+    return rec, err
+
+def evaluarMinimaDistanciaGenerico(asociacionesXT, clases):
+    asociacionAprendida, renglonesProbar = validarTrainAndTest(
+        asociacionesXT, clases, porcentajeEntrenamiento)
+    centroides = aprenderMinimaDistancia(asociacionAprendida, clases)
+    aciertos = 0
+    cont = 0
+    while cont < len(renglonesProbar):
+        XPrueba = asociacionesXT[renglonesProbar[cont]][0]
+        YReal = asociacionesXT[renglonesProbar[cont]][1][0]
+        prediccion = clasificarMinimaDistancia(XPrueba, centroides)
+        if prediccion == YReal:
+            aciertos = aciertos + 1
+        cont = cont + 1
+    totalPrueba = len(renglonesProbar)
+    rec = (aciertos / totalPrueba) * 100
+    err = 100 - rec
+    return rec, err
+
+# ≽(•⩊ •マ≼ GENERAR LOS ESCENARIOS ≽(•⩊ •マ≼
+# los 4 atributos. Luego se va quitando cada atributo elegido.
+
+def descripcionEscenario(posX):
+    # Devuelve un nombre legible a partir de las posiciones que quedan en X
+    if posX == posXCompleta:
+        return "Los 4 atributos (LS,AS,LP,AP)"
+    quitados = [x for x in posXCompleta if x not in posX]
+    nombresQuitados = [nombresAtributosX[x] for x in quitados]
+    nombresQuedan = [nombresAtributosX[x] for x in posX]
+    return f"Sin {' y '.join(nombresQuitados)} (deja {','.join(nombresQuedan)})"
+escenarios = []
+
+# 6 (ninguna eliminación)
+escenarios.append((descripcionEscenario(posXCompleta), posXCompleta))
+# 6a. quitar el primer atributo
+posA = [x for x in posXCompleta if x not in [atributosEliminar[0]]]
+escenarios.append((descripcionEscenario(posA), posA))
+# 6b. quitar el segundo atributo
+posB = [x for x in posXCompleta if x not in [atributosEliminar[1]]]
+escenarios.append((descripcionEscenario(posB), posB))
+# 6c. quitar ambos atributos
+posC = [x for x in posXCompleta if x not in atributosEliminar]
+escenarios.append((descripcionEscenario(posC), posC))
+
+for nombre, posX in escenarios:
+    asocEsc = construirAsociacionesConMatriz(matrizDatos, posX)
+    recK, errK = evaluarKNNGenerico(asocEsc, vectorClases, k)
+    recM, errM = evaluarMinimaDistanciaGenerico(asocEsc, vectorClases)
+
+    print("✩₊˚.⋆☾⋆⁺₊✧")
+    print("ESCENARIO:", nombre)
+    print("K-NN")
+    print(f"  Recuperación (% aciertos): {recK:.2f}%")
+    print(f"  Error: {errK:.2f}%")
+    print("Mínima Distancia")
+    print(f"  Recuperación (% aciertos): {recM:.2f}%")
+    print(f"  Error: {errM:.2f}%")
+
+
+# ≽(•⩊ •マ≼ 7. SUSTITUIR 3 MUESTRAS DEL CONJUNTO DE APRENDIZAJE ≽(•⩊ •マ≼
+print("✩₊˚.⋆☾⋆⁺₊✧")
+print("7. SUSTITUCIÓN DE 3 MUESTRAS EN EL CONJUNTO DE APRENDIZAJE")
+
+# Muestras nuevas que sustituirán a 3 muestras del aprendizaje
+v1 = [50, 35, 14, 20, 'Iris-setosa']
+v2 = [50, 35, 14, 20, 'Iris-setosa']
+v3 = [50, 32, 13, 20, 'Iris-setosa']
+
+muestrasNuevas = [v1, v2, v3]
+
+# Obtener el conjunto de aprendizaje y de prueba (una sola división)
+asociacionAprendida7, renglonesProbar7 = validarTrainAndTest(
+    asociaciones, vectorClases, porcentajeEntrenamiento)
+
+# ≽(•⩊ •マ≼ Función que reemplaza las 3 primeras muestras del aprendizaje ≽(•⩊ •マ≼
+def sustituirMuestras(aprendidas, nuevas):
+    modificadas = []
+    cont = 0
+    while cont < len(aprendidas):
+        if cont < len(nuevas):
+            # convertir v a asociación [[X],[Y]]
+            VX = [float(nuevas[cont][0]), float(nuevas[cont][1]),
+                  float(nuevas[cont][2]), float(nuevas[cont][3])]
+            VY = [nuevas[cont][4]]
+            modificadas.append([VX, VY])
+        else:
+            modificadas.append(aprendidas[cont])
+        cont = cont + 1
+    return modificadas
+
+aprendidasModificadas = sustituirMuestras(asociacionAprendida7, muestrasNuevas)
+
+# VERIFICACIÓN: las primeras muestras del aprendizaje antes y después
+print("Antes de sustituir (primeras muestras del aprendizaje):")
+for i in range(len(muestrasNuevas)):
+    print("  ", asociacionAprendida7[i])
+print("Después de sustituir (primeras muestras del aprendizaje):")
+for i in range(len(muestrasNuevas)):
+    print("  ", aprendidasModificadas[i])
+
+# K-NN  sobre el aprendizaje modificado
+def evaluarKNNSustitucion(asociaciones, renglonesProbar, aprendidas, valorK):
+    aciertos = 0
+    cont = 0
+    while cont < len(renglonesProbar):
+        XPrueba = asociaciones[renglonesProbar[cont]][0]
+        YReal = asociaciones[renglonesProbar[cont]][1][0]
+        prediccion = clasificarKNN(XPrueba, aprendidas, valorK)
+        if prediccion == YReal:
+            aciertos = aciertos + 1
+        cont = cont + 1
+
+    total = len(renglonesProbar)
+    recuperacion = (aciertos / total) * 100
+    error = 100 - recuperacion
+
+    print("✩₊˚.⋆☾⋆⁺₊✧")
+    print(f"K = {valorK}-NN (con muestras sustituidas)")
+    print(f"  Muestras de prueba:        {total}")
+    print(f"  Aciertos: {aciertos} de {total}")
+    print(f"  Recuperación (% aciertos): {recuperacion:.2f}%")
+    print(f"  Error: {error:.2f}%")
+
+evaluarKNNSustitucion(asociaciones, renglonesProbar7, aprendidasModificadas, 1)
+evaluarKNNSustitucion(asociaciones, renglonesProbar7, aprendidasModificadas, 3)
+evaluarKNNSustitucion(asociaciones, renglonesProbar7, aprendidasModificadas, 5)
+
+# Evaluación de MÍNIMA DISTANCIA sobre el aprendizaje con muestras sustituidas
+def evaluarMinimaDistanciaSustitucion(asociaciones, renglonesProbar, aprendidas):
+    centroides = aprenderMinimaDistancia(aprendidas, vectorClases)
+
+    aciertos = 0
+    cont = 0
+    while cont < len(renglonesProbar):
+        XPrueba = asociaciones[renglonesProbar[cont]][0]
+        YReal = asociaciones[renglonesProbar[cont]][1][0]
+        prediccion = clasificarMinimaDistancia(XPrueba, centroides)
+        if prediccion == YReal:
+            aciertos = aciertos + 1
+        cont = cont + 1
+
+    total = len(renglonesProbar)
+    recuperacion = (aciertos / total) * 100
+    error = 100 - recuperacion
+
+    print("✩₊˚.⋆☾⋆⁺₊✧")
+    print("Mínima Distancia (con muestras sustituidas)")
+    print(f"  Muestras de prueba:        {total}")
+    print(f"  Aciertos: {aciertos} de {total}")
+    print(f"  Recuperación (% aciertos): {recuperacion:.2f}%")
+    print(f"  Error: {error:.2f}%")
+
+evaluarMinimaDistanciaSustitucion(asociaciones, renglonesProbar7, aprendidasModificadas)
+
+print("✩₊˚.⋆☾⋆⁺₊✧")
+
 
 
