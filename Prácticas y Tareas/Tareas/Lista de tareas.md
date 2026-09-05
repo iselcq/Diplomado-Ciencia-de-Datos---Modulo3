@@ -14,10 +14,16 @@ Tareas:
 
 https://docs.google.com/document/d/1LHE19lUinD_CO4twGP6pHe_TXdNiIlBXwZ3bpvR9h8Q/edit?usp=sharing
  
-.✦ ݁˖ Tarea 3 y 4 .✦ ݁˖
+.✦ ݁˖ Tarea - 3 y 4 .✦ ݁˖
 
 Las Tareas de KNN y Mínima Distancia se encuentran en el siguiente link de Google Sheets se encuentran
 ambas tareas.
 
  https://docs.google.com/spreadsheets/d/1ZBc3YmJtmxZdIc3Zj38gHM3TsklW4MsRdUqXLrGy7X0/edit?usp=sharing
+
+
+
+.✦ ݁˖ Tarea 6 - PROBLEMAS EN LOS CONJUNTOS DE DATOS .✦ ݁˖
+
+ https://docs.google.com/document/d/1JklhNQH5Ub6edqojAQolWwMrrQm89MIuiDzdraqsbFs/edit?usp=sharing
 
